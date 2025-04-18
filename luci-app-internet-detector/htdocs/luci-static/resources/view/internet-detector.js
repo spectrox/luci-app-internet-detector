@@ -655,6 +655,7 @@ return view.extend({
 		);
 		o.value(0, _('TCP port connection'));
 		o.value(1, _('ICMP-echo request (ping)'));
+		o.value(2, _('Curl request'));
 		o.default   = '0';
 		o.modalonly = true;
 

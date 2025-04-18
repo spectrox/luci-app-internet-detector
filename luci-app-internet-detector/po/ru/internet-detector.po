@@ -195,6 +195,9 @@ msgstr "Огромный: 1492 байта"
 msgid "ICMP-echo request (ping)"
 msgstr "Запрос ICMP-echo (ping)"
 
+msgid "Curl request"
+msgstr "Запрос Curl"
+
 msgid "ICMP packet data size"
 msgstr "Размер данных ICMP-пакета"
 

@@ -181,6 +181,9 @@ msgstr ""
 msgid "ICMP-echo request (ping)"
 msgstr ""
 
+msgid "Curl request"
+msgstr ""
+
 msgid "ICMP packet data size"
 msgstr ""
 

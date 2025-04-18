@@ -20,6 +20,8 @@ local InternetDetector = {
 	libDir         = "/usr/lib/lua",
 	pingCmd        = "/bin/ping",
 	pingParams     = "-c 1",
+	curlCmd        = "/usr/bin/curl",
+	curlParams     = "",
 	uiRunTime      = 30,
 	noModules      = false,
 	uiAvailModules = { mod_public_ip = true },
@@ -233,6 +235,28 @@ function InternetDetector:pingHost(host)
 	return retCode
 end
 
+function InternetDetector:curlRequestHost(host)
+	local curl = string.format(
+		"%s %s -m %d --connect-timeout %d %s %s > /dev/null 2>&1",
+		self.curlCmd,
+		self.curlParams,
+		self.serviceConfig.connection_timeout,
+		self.serviceConfig.connection_timeout,
+		self.serviceConfig.iface and (" --interface " .. self.serviceConfig.iface) or "",
+		host
+	)
+	local retCode = os.execute(curl)
+
+	if self.debug then
+		io.stdout:write(string.format(
+			"--- Curl ---\ntime = %s\n%s\nretCode = %s\n", os.time(), curl, retCode)
+		)
+		io.stdout:flush()
+	end
+
+	return retCode
+end
+
 function InternetDetector:TCPConnectionToHost(host, port)
 	local retCode = 1
 	local saTable, errMsg, errNum = socket.getaddrinfo(host, port or self.serviceConfig.tcp_port)
@@ -317,7 +341,13 @@ function InternetDetector:TCPConnectionToHost(host, port)
 end
 
 function InternetDetector:checkHosts()
-	local checkFunc = (self.serviceConfig.check_type == 1) and self.pingHost or self.TCPConnectionToHost
+	local checkFunctions =
+	{
+		[0] = self.TCPConnectionToHost,
+		[1] = self.pingHost,
+		[2] = self.curlRequestHost,
+	}
+	local checkFunc = checkFunctions[self.serviceConfig.check_type]
 	local retCode   = 1
 	for k, v in ipairs(self.parsedHosts) do
 		for i = 1, self.serviceConfig.connection_attempts do
